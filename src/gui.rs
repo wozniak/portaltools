@@ -5,6 +5,7 @@ use native_windows_gui::*;
 pub struct PortalTools {
     // layout and window
     #[nwg_control(flags: "WINDOW|VISIBLE", size: (420, 200), title: "Portal Tools")]
+    #[nwg_events( OnWindowClose: [PortalTools::close] )]
     pub window: Window,
 
     #[nwg_layout(parent: window, spacing: 2)]
@@ -110,6 +111,10 @@ pub struct PortalTools {
 }
 
 impl PortalTools {
+    fn close(&self) {
+        crate::nwg::stop_thread_dispatch();
+    }
+
     fn pick_blue(&self) {
         if self.picker.run(Some(&self.window)) {
             let c = self.picker.color();

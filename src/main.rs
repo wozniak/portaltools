@@ -255,72 +255,8 @@ impl gui::PortalTools {
 
     // apply crosshair changes
     fn apply_crosshair(&self) -> Result<(), String> {
-        let mut cdll = std::fs::read(
-            format!("{}/portal/bin/client.dll", self.game_box.text())
-        )
-            .map_err(|e| e.to_string())?;
-
-        struct Color {
-            r: u8,
-            g: u8,
-            b: u8,
-        }
-
-        impl From<&[u8]> for Color {
-            fn from(s: &[u8]) -> Self {
-                Self {
-                    r: s[0],
-                    g: s[1],
-                    b: s[2],
-                }
-            }
-        }
-
-        let bl = Color::from(hex::decode(self.blue_box.text()).unwrap().as_slice());
-        let or = Color::from(hex::decode(self.orange_box.text()).unwrap().as_slice());
-        let ca = Color::from(hex::decode(self.carry_box.text()).unwrap().as_slice());
-
-        if !self.steampipe() {
-            let patch = [
-                0x8B, 0x44, 0x24, 0x08, 0x83, 0xE8, 0x00, 0x74, 0x37, 0x83, 0xE8, 0x01, 0xB1, 0xFF,
-                0x74, 0x20, 0x83, 0xE8, 0x01, 0x8B, 0x44, 0x24, 0x04, 0xC6, 0x00, or.r, 0xC6, 0x40,
-                0x03, 0xFF, 0x74, 0x07, 0x88, 0x48, 0x01, 0x88, 0x48, 0x02, 0xC3, 0xC6, 0x40, 0x01,
-                or.g, 0xC6, 0x40, 0x02, or.b, 0xC3, 0x8B, 0x44, 0x24, 0x04, 0xC6, 0x00, bl.r, 0xC6,
-                0x40, 0x01, bl.g, 0xC6, 0x40, 0x02, bl.b, 0xC3, 0x8B, 0x44, 0x24, 0x04, 0xC6, 0x00,
-                ca.r, 0xC6, 0x40, 0x01, ca.g, 0xC6, 0x40, 0x02, ca.b, 0xC6,
-            ];
-
-            let pos = if let Some(n) = cdll
-                .windows(8)
-                .position(|s| s == [0x40, 0x03, 0xFF, 0xC3, 0xCC, 0xCC, 0xCC, 0xCC])
-            {
-                n - patch.len()
-            } else {
-                return Err("invalid client.dll".to_string());
-            };
-
-            for i in 0..patch.len() {
-                cdll[i + pos] = patch[i];
-            }
-        } else {
-            cdll[0x001c7a49] = bl.r;
-            cdll[0x001c7a49 + 1] = bl.g;
-            cdll[0x001c7a49 + 2] = bl.b;
-
-            cdll[0x001c7a3e] = or.r;
-            cdll[0x001c7a3e + 1] = or.g;
-            cdll[0x001c7a3e + 2] = or.b;
-
-            cdll[0x001c7a54] = ca.r;
-            cdll[0x001c7a54 + 1] = ca.g;
-            cdll[0x001c7a54 + 2] = ca.b;
-        }
-
-        if let Err(e) = std::fs::write(format!("{}/portal/bin/client.dll", self.game_box.text()), cdll) {
-            Err(e.to_string())
-        } else {
-            Ok(())
-        }
+       nwg::modal_info_message(&self.window, "Portal Tools", "Crosshair no longer does anything. Please use https://mikes.software/sst instead."); 
+       Ok(())
     }
 
     fn steampipe(&self) -> bool {
